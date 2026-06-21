@@ -1,22 +1,22 @@
 import pytest
 
-from pico import Pico, SessionStore, WorkspaceContext
-from pico.testing import ScriptedModelClient
+from codecraft import Codecraft, SessionStore, WorkspaceContext
+from codecraft.testing import ScriptedModelClient
 
 
 def build_agent(tmp_path, outputs, approval_policy="auto"):
     (tmp_path / "README.md").write_text("demo\n", encoding="utf-8")
     workspace = WorkspaceContext.build(tmp_path)
-    return Pico(
+    return Codecraft(
         model_client=ScriptedModelClient(outputs),
         workspace=workspace,
-        session_store=SessionStore(tmp_path / ".pico" / "sessions"),
+        session_store=SessionStore(tmp_path / ".codecraft" / "sessions"),
         approval_policy=approval_policy,
     )
 
 
 def assistant_contents(app):
-    from pico.tui.widgets import AssistantMessage
+    from codecraft.tui.widgets import AssistantMessage
 
     return [message.content for message in app.query(AssistantMessage)]
 
@@ -42,7 +42,7 @@ async def wait_for_widget(app, pilot, selector, attempts=40, delay=0.1):
 
 
 async def wait_for_tool_card_status(app, pilot, status, attempts=40, delay=0.1):
-    from pico.tui.widgets import ToolCard
+    from codecraft.tui.widgets import ToolCard
 
     for _ in range(attempts):
         await pilot.pause(delay=delay)
@@ -74,10 +74,10 @@ def rendered_text(widget) -> str:
 
 
 def test_cli_defaults_interactive_tty_mode_to_tui(monkeypatch):
-    from pico.cli import build_arg_parser, interaction_mode
+    from codecraft.cli import build_arg_parser, interaction_mode
 
     monkeypatch.setattr(
-        "pico.cli.sys.stdin", type("Stdin", (), {"isatty": lambda self: True})()
+        "codecraft.cli.sys.stdin", type("Stdin", (), {"isatty": lambda self: True})()
     )
     args = build_arg_parser().parse_args(["--cwd", "/tmp/workspace"])
 
@@ -85,7 +85,7 @@ def test_cli_defaults_interactive_tty_mode_to_tui(monkeypatch):
 
 
 def test_cli_keeps_prompt_as_one_shot_mode():
-    from pico.cli import build_arg_parser, interaction_mode
+    from codecraft.cli import build_arg_parser, interaction_mode
 
     args = build_arg_parser().parse_args(["inspect", "tests"])
 
@@ -93,7 +93,7 @@ def test_cli_keeps_prompt_as_one_shot_mode():
 
 
 def test_cli_repl_flag_restores_plain_repl():
-    from pico.cli import build_arg_parser, interaction_mode
+    from codecraft.cli import build_arg_parser, interaction_mode
 
     args = build_arg_parser().parse_args(["--repl", "--cwd", "/tmp/workspace"])
 
@@ -101,10 +101,10 @@ def test_cli_repl_flag_restores_plain_repl():
 
 
 def test_cli_uses_plain_repl_for_piped_stdin(monkeypatch):
-    from pico.cli import build_arg_parser, interaction_mode
+    from codecraft.cli import build_arg_parser, interaction_mode
 
     monkeypatch.setattr(
-        "pico.cli.sys.stdin", type("Stdin", (), {"isatty": lambda self: False})()
+        "codecraft.cli.sys.stdin", type("Stdin", (), {"isatty": lambda self: False})()
     )
     args = build_arg_parser().parse_args(["--cwd", "/tmp/workspace"])
 
@@ -112,7 +112,7 @@ def test_cli_uses_plain_repl_for_piped_stdin(monkeypatch):
 
 
 def test_cli_accepts_explicit_tui_flag():
-    from pico.cli import build_arg_parser, interaction_mode
+    from codecraft.cli import build_arg_parser, interaction_mode
 
     args = build_arg_parser().parse_args(["--tui", "--cwd", "/tmp/workspace"])
 
@@ -122,7 +122,7 @@ def test_cli_accepts_explicit_tui_flag():
 
 
 def test_status_bar_shows_runtime_identity(tmp_path):
-    from pico.tui.widgets import StatusBar
+    from codecraft.tui.widgets import StatusBar
 
     agent = build_agent(tmp_path, [])
     status = StatusBar()
@@ -135,7 +135,7 @@ def test_status_bar_shows_runtime_identity(tmp_path):
 
 
 def test_status_bar_reads_context_usage_governance_fields():
-    from pico.tui.widgets import StatusBar
+    from codecraft.tui.widgets import StatusBar
 
     status = StatusBar()
 
@@ -151,7 +151,7 @@ def test_status_bar_reads_context_usage_governance_fields():
 
 
 def test_cli_plan_mode_and_session_commands_expose_runtime_state(tmp_path):
-    from pico.cli import handle_repl_command
+    from codecraft.cli import handle_repl_command
 
     agent = build_agent(tmp_path, [])
 
@@ -160,13 +160,13 @@ def test_cli_plan_mode_and_session_commands_expose_runtime_state(tmp_path):
     assert handled is True
     assert should_exit is False
     assert "mode: plan" in output
-    assert ".pico/plans/refactor-auth-plan.md" in output
+    assert ".codecraft/plans/refactor-auth-plan.md" in output
     assert agent.runtime_mode == "plan"
 
     handled, _, output = handle_repl_command(agent, "/mode")
     assert handled is True
     assert "runtime mode: plan" in output
-    assert "plan path: .pico/plans/refactor-auth-plan.md" in output
+    assert "plan path: .codecraft/plans/refactor-auth-plan.md" in output
 
     handled, _, output = handle_repl_command(agent, "/session")
     assert handled is True
@@ -182,7 +182,7 @@ def test_cli_plan_mode_and_session_commands_expose_runtime_state(tmp_path):
 
 
 def test_slash_command_registry_suggests_and_parses_subagent():
-    from pico.commands.slash import (
+    from codecraft.commands.slash import (
         parse_subagent_args,
         resolve_command,
         suggest_commands,
@@ -207,10 +207,10 @@ def test_slash_command_registry_suggests_and_parses_subagent():
 
 @pytest.mark.asyncio
 async def test_tui_slash_suggestions_complete_partial_command(tmp_path):
-    from pico.tui.app import PicoTuiApp
-    from pico.tui.widgets import InputBar, SlashSuggestions
+    from codecraft.tui.app import CodecraftTuiApp
+    from codecraft.tui.widgets import InputBar, SlashSuggestions
 
-    app = PicoTuiApp(build_agent(tmp_path, []))
+    app = CodecraftTuiApp(build_agent(tmp_path, []))
 
     async with app.run_test() as pilot:
         bar = app.query_one(InputBar)
@@ -229,7 +229,7 @@ async def test_tui_slash_suggestions_complete_partial_command(tmp_path):
 
 
 def test_agents_slash_command_shows_worker_status(tmp_path):
-    from pico.cli import handle_repl_command
+    from codecraft.cli import handle_repl_command
 
     agent = build_agent(tmp_path, [])
 
@@ -241,7 +241,7 @@ def test_agents_slash_command_shows_worker_status(tmp_path):
 
 
 def test_subagent_slash_command_launches_explore_worker(tmp_path):
-    from pico.cli import handle_repl_command
+    from codecraft.cli import handle_repl_command
 
     agent = build_agent(tmp_path, ["<final>Subagent checked README.</final>"])
 
@@ -257,11 +257,11 @@ def test_subagent_slash_command_launches_explore_worker(tmp_path):
 
 @pytest.mark.asyncio
 async def test_tui_help_command_uses_existing_repl_commands(tmp_path):
-    from pico.tui.app import PicoTuiApp
-    from pico.tui.widgets import InputBar
+    from codecraft.tui.app import CodecraftTuiApp
+    from codecraft.tui.widgets import InputBar
 
     agent = build_agent(tmp_path, [])
-    app = PicoTuiApp(agent)
+    app = CodecraftTuiApp(agent)
 
     async with app.run_test() as pilot:
         bar = app.query_one(InputBar)
@@ -276,11 +276,11 @@ async def test_tui_help_command_uses_existing_repl_commands(tmp_path):
 
 @pytest.mark.asyncio
 async def test_tui_runs_agent_turn_and_renders_final_answer(tmp_path):
-    from pico.tui.app import PicoTuiApp
-    from pico.tui.widgets import InputBar
+    from codecraft.tui.app import CodecraftTuiApp
+    from codecraft.tui.widgets import InputBar
 
     agent = build_agent(tmp_path, ["<final>Done from TUI.</final>"])
-    app = PicoTuiApp(agent)
+    app = CodecraftTuiApp(agent)
 
     async with app.run_test() as pilot:
         bar = app.query_one(InputBar)
@@ -293,11 +293,11 @@ async def test_tui_runs_agent_turn_and_renders_final_answer(tmp_path):
 
 @pytest.mark.asyncio
 async def test_tui_hides_welcome_after_first_turn_so_chat_stays_visible(tmp_path):
-    from pico.tui.app import PicoTuiApp
-    from pico.tui.widgets import ChatLog, InputBar, WelcomeBanner
+    from codecraft.tui.app import CodecraftTuiApp
+    from codecraft.tui.widgets import ChatLog, InputBar, WelcomeBanner
 
     agent = build_agent(tmp_path, ["<final>Done from TUI.</final>"])
-    app = PicoTuiApp(agent)
+    app = CodecraftTuiApp(agent)
 
     async with app.run_test(size=(80, 16)) as pilot:
         bar = app.query_one(InputBar)
@@ -318,14 +318,14 @@ async def test_tui_hides_welcome_after_first_turn_so_chat_stays_visible(tmp_path
 
 @pytest.mark.asyncio
 async def test_tui_chat_stream_uses_terminal_transcript_layout(tmp_path):
-    from pico.tui.app import PicoTuiApp
-    from pico.tui.widgets import AssistantMessage, ChatLog, InputBar, UserMessage
+    from codecraft.tui.app import CodecraftTuiApp
+    from codecraft.tui.widgets import AssistantMessage, ChatLog, InputBar, UserMessage
 
     agent = build_agent(
         tmp_path,
         ["<final>我是 pico。\n\n- 读代码\n- 跑命令\n- 改文件</final>"],
     )
-    app = PicoTuiApp(agent)
+    app = CodecraftTuiApp(agent)
 
     async with app.run_test(size=(100, 20)) as pilot:
         bar = app.query_one(InputBar)
@@ -355,8 +355,8 @@ async def test_tui_chat_stream_uses_terminal_transcript_layout(tmp_path):
 
 @pytest.mark.asyncio
 async def test_tui_renders_tool_card_result(tmp_path):
-    from pico.tui.app import PicoTuiApp
-    from pico.tui.widgets import InputBar, ToolCard
+    from codecraft.tui.app import CodecraftTuiApp
+    from codecraft.tui.widgets import InputBar, ToolCard
 
     agent = build_agent(
         tmp_path,
@@ -365,7 +365,7 @@ async def test_tui_renders_tool_card_result(tmp_path):
             "<final>Wrote it.</final>",
         ],
     )
-    app = PicoTuiApp(agent)
+    app = CodecraftTuiApp(agent)
 
     async with app.run_test() as pilot:
         bar = app.query_one(InputBar)
@@ -381,8 +381,8 @@ async def test_tui_renders_tool_card_result(tmp_path):
 
 @pytest.mark.asyncio
 async def test_tui_approval_prompt_controls_risky_tool(tmp_path):
-    from pico.tui.app import PicoTuiApp
-    from pico.tui.widgets import ConfirmPrompt, InputBar
+    from codecraft.tui.app import CodecraftTuiApp
+    from codecraft.tui.widgets import ConfirmPrompt, InputBar
 
     agent = build_agent(
         tmp_path,
@@ -392,7 +392,7 @@ async def test_tui_approval_prompt_controls_risky_tool(tmp_path):
         ],
         approval_policy="ask",
     )
-    app = PicoTuiApp(agent)
+    app = CodecraftTuiApp(agent)
 
     async with app.run_test() as pilot:
         bar = app.query_one(InputBar)
@@ -412,8 +412,8 @@ async def test_tui_approval_prompt_controls_risky_tool(tmp_path):
 
 @pytest.mark.asyncio
 async def test_tui_ask_user_prompt_returns_selected_choice(tmp_path):
-    from pico.tui.app import PicoTuiApp
-    from pico.tui.widgets import AskUserPrompt, InputBar
+    from codecraft.tui.app import CodecraftTuiApp
+    from codecraft.tui.widgets import AskUserPrompt, InputBar
 
     agent = build_agent(
         tmp_path,
@@ -422,7 +422,7 @@ async def test_tui_ask_user_prompt_returns_selected_choice(tmp_path):
             "<final>User chose yes.</final>",
         ],
     )
-    app = PicoTuiApp(agent)
+    app = CodecraftTuiApp(agent)
 
     async with app.run_test() as pilot:
         bar = app.query_one(InputBar)

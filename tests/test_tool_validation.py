@@ -7,10 +7,10 @@ Pydantic models underneath.
 
 import pytest
 
-from pico.core.runtime import Pico
-from pico.core.session_store import SessionStore
-from pico.core.workspace import WorkspaceContext
-from pico.testing import ScriptedModelClient
+from codecraft.core.runtime import Codecraft
+from codecraft.core.session_store import SessionStore
+from codecraft.core.workspace import WorkspaceContext
+from codecraft.testing import ScriptedModelClient
 
 
 def build_workspace(tmp_path):
@@ -20,8 +20,8 @@ def build_workspace(tmp_path):
 
 def build_agent(tmp_path, **kwargs):
     workspace = build_workspace(tmp_path)
-    store = SessionStore(tmp_path / ".pico" / "sessions")
-    return Pico(
+    store = SessionStore(tmp_path / ".codecraft" / "sessions")
+    return Codecraft(
         model_client=ScriptedModelClient([]),
         workspace=workspace,
         session_store=store,

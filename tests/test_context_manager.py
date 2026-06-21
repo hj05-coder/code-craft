@@ -1,6 +1,6 @@
-from pico.testing import ScriptedModelClient
-from pico import Pico, SessionStore, WorkspaceContext
-from pico.core.context_manager import ContextManager
+from codecraft.testing import ScriptedModelClient
+from codecraft import Codecraft, SessionStore, WorkspaceContext
+from codecraft.core.context_manager import ContextManager
 
 
 def build_workspace(tmp_path):
@@ -10,9 +10,9 @@ def build_workspace(tmp_path):
 
 def build_agent(tmp_path, outputs, **kwargs):
     workspace = build_workspace(tmp_path)
-    store = SessionStore(tmp_path / ".pico" / "sessions")
+    store = SessionStore(tmp_path / ".codecraft" / "sessions")
     approval_policy = kwargs.pop("approval_policy", "auto")
-    return Pico(
+    return Codecraft(
         model_client=ScriptedModelClient(outputs),
         workspace=workspace,
         session_store=store,
@@ -29,7 +29,7 @@ def test_context_manager_assembles_sections_in_expected_order(tmp_path):
 
     prompt, metadata = ContextManager(agent).build("Where is the deploy key?")
 
-    assert prompt.index("You are pico") < prompt.index("Memory:")
+    assert prompt.index("You are codecraft") < prompt.index("Memory:")
     assert prompt.index("Memory:") < prompt.index("Available skills:")
     assert prompt.index("Available skills:") < prompt.index("Relevant memory:")
     assert prompt.index("Relevant memory:") < prompt.index("Transcript:")
@@ -211,7 +211,7 @@ def test_context_manager_summarizes_older_tool_output_into_one_line(tmp_path):
 
 
 def test_context_manager_relevant_memory_can_mix_durable_notes(tmp_path):
-    memory_root = tmp_path / ".pico" / "memory"
+    memory_root = tmp_path / ".codecraft" / "memory"
     topics_dir = memory_root / "topics"
     topics_dir.mkdir(parents=True)
     (memory_root / "MEMORY.md").write_text(

@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from pico.features.sandbox.config import SandboxConfig
-from pico.features.sandbox.runner import SandboxRunner
+from codecraft.features.sandbox.config import SandboxConfig
+from codecraft.features.sandbox.runner import SandboxRunner
 
 
 def test_required_sandbox_rejects_when_backend_is_unavailable(tmp_path):
