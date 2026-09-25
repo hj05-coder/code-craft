@@ -10,7 +10,11 @@ codecraft 跑在本地仓库里，接上一个模型 provider，就能读代码�
 </div>
 
 <p align="center">
-  <img src="assets/screenshots/codecraft-tui-intro.png" alt="codecraft TUI 启动界面" width="960">
+  <img src="assets/screenshots/codecraft-tui-start.png" alt="codecraft TUI 启动界面" width="960">
+</p>
+
+<p align="center">
+  <img src="assets/screenshots/codecraft-tui-overview.png" alt="codecraft TUI 功能介绍" width="960">
 </p>
 
 ---
@@ -34,11 +38,11 @@ TUI 直接连接同一个 runtime。输入框、工具结果、状态栏、slash
 
 | 工具和子 agent | Skills、help 和命令补全 |
 | --- | --- |
-| ![codecraft TUI 工具表](assets/screenshots/codecraft-tui-tools.png) | ![codecraft TUI skills 和 help](assets/screenshots/codecraft-tui-skills-help.png) |
+| ![codecraft TUI 工具表](assets/screenshots/codecraft-tui-tools-agents.png) | ![codecraft TUI skills 和 help](assets/screenshots/codecraft-tui-commands.png) |
 
 | Memory 和 durable topics | Slash command 工作区 |
 | --- | --- |
-| ![codecraft TUI memory 和 skills](assets/screenshots/codecraft-tui-memory-skills.png) | ![codecraft TUI slash command 补全](assets/screenshots/codecraft-tui-latest.png) |
+| ![codecraft TUI memory 和 skills](assets/screenshots/codecraft-tui-memory-skills.png) | ![codecraft TUI slash command 补全](assets/screenshots/codecraft-tui-commands.png) |
 
 ## 安装
 
