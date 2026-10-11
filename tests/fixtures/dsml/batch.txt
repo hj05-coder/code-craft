@@ -1,0 +1,8 @@
+<｜｜DSML｜｜ calls>
+<｜｜DSML｜｜ invoke name="list_files">
+<｜｜DSML｜｜ parameter name="path" string="true">codecraft/features</｜｜DSML｜｜ parameter>
+</｜｜DSML｜｜ invoke>
+<｜｜DSML｜｜ invoke name="list_files">
+<｜｜DSML｜｜ parameter name="path" string="true">codecraft/core</｜｜DSML｜｜ parameter>
+</｜｜DSML｜｜ invoke>
+</｜｜DSML｜｜ calls>

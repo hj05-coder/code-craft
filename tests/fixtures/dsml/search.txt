@@ -1,0 +1,6 @@
+<｜｜DSML｜｜ calls>
+<｜｜DSML｜｜ invoke name="search">
+<｜｜DSML｜｜ parameter name="pattern" string="true">memory|dream|MEMORY.md|daily</｜｜DSML｜｜ parameter>
+<｜｜DSML｜｜ parameter name="path" string="true">codecraft</｜｜DSML｜｜ parameter>
+</｜｜DSML｜｜ invoke>
+</｜｜DSML｜｜ calls>

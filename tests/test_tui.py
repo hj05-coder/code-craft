@@ -437,3 +437,36 @@ async def test_tui_ask_user_prompt_returns_selected_choice(tmp_path):
         text = await wait_for_assistant(app, pilot, "User chose yes.")
 
         assert "User chose yes." in text
+
+
+@pytest.mark.asyncio
+async def test_protocol_retry_is_status_not_chat_and_stop_is_visible(tmp_path):
+    from codecraft.tui.app import CodecraftTuiApp
+    from codecraft.tui.widgets import ThinkingIndicator
+
+    app = CodecraftTuiApp(build_agent(tmp_path, []))
+    async with app.run_test() as pilot:
+        app._handle_runtime_event({"type": "retry", "content": "Your previous response could not be executed."})
+        await pilot.pause()
+        assert not assistant_contents(app)
+        assert "\u81ea\u52a8\u91cd\u8bd5" in rendered_text(app.query_one(ThinkingIndicator))
+        app._handle_runtime_event({"type": "stop", "content": "Stopped after protocol errors."})
+        await pilot.pause()
+        assert "Stopped" in "".join(assistant_contents(app))
+
+
+@pytest.mark.asyncio
+async def test_protocol_correction_is_not_restored_as_user_message(tmp_path):
+    from codecraft.tui.app import CodecraftTuiApp
+    from codecraft.tui.widgets import UserMessage
+
+    app = CodecraftTuiApp(build_agent(tmp_path, []))
+    async with app.run_test() as pilot:
+        app._restore_history([
+            {"role": "user", "kind": "protocol_correction", "content": "internal repair instruction"},
+            {"role": "user", "content": "Real user question"},
+            {"role": "assistant", "content": "Normal answer"},
+        ])
+        await pilot.pause()
+        assert [m.content for m in app.query(UserMessage)] == ["Real user question"]
+        assert assistant_contents(app) == ["Normal answer"]
